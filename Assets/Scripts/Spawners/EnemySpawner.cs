@@ -1,49 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
+using Spawners;
 using UnityEngine;
 
-public class EnemySpawner : MonoBehaviour
+public class EnemySpawner : Spawner<Enemy>
 {
-    [SerializeField] private int _minSpawnPoint = 3;
-    [SerializeField] private int _maxSpawnPoint = 8;
-    [SerializeField] private GameObject _startPoint;
-    [SerializeField] private int _ySpawnOffset = 1;
+    [SerializeField] private SpawnPointGenerator _pointGenerator;
 
-    private GameObject[] _spawnPoints;
-
-    private void Awake()
+    protected override void ActionOnGet(Enemy enemy)
     {
-        int number = Random.Range(_minSpawnPoint, _maxSpawnPoint);
-        _spawnPoints = new GameObject[number];
+        Vector3 spawnPoint = _pointGenerator.GetRandomPoint().position;
+        float randomYAngle = Random.Range(0f, 360f);
+        Quaternion direction = Quaternion.Euler(0, randomYAngle, 0);
 
-        for (int i = 0; i < number; i++)
-        {
-            Vector3 position = GetRandomSpawnPoint();
-            GameObject newPoint = new GameObject($"SpawnPoint#{i}");
-            newPoint.transform.position = position;
-            _spawnPoints[i] = newPoint;
-        }
+        base.ActionOnGet(enemy);
+        enemy.Init(spawnPoint, direction);
+
+        enemy.Falled += OnEnemyFall;
     }
 
-
-    private Vector3 GetRandomSpawnPoint()
+    private void OnEnemyFall(Enemy enemy)
     {
-        if (_startPoint == null) return transform.position;
-
-        // Пытаемся получить коллайдер
-        if (!_startPoint.TryGetComponent<Collider>(out Collider collider))
-        {
-            // Если его нет — добавляем (например, BoxCollider)
-            collider = _startPoint.AddComponent<BoxCollider>();
-            Debug.LogWarning($"На {_startPoint.name} не было коллайдера, добавлен BoxCollider.");
-        }
-
-        Bounds bounds = collider.bounds;
-
-        float y = bounds.max.y + _ySpawnOffset;
-        float x = Random.Range(bounds.min.x, bounds.max.x);
-        float z = Random.Range(bounds.min.z, bounds.max.z);
-
-        return new Vector3(x, y, z);
+        enemy.Falled -= OnEnemyFall;
+        ReleaseToPool(enemy);
     }
 }
+

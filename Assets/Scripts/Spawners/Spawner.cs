@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Pool;
 using System.Collections;
@@ -8,9 +7,10 @@ namespace Spawners
     public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
     {
         [SerializeField] private T _prefab;
-        [SerializeField] private float _repeatRate = 1f;
+        [SerializeField] private float _repeatRate = 2f;
         [SerializeField] private int _poolCapacity = 20;
         [SerializeField] private int _poolMaxSize = 20;
+
         private bool _isSpawning = false;
 
         protected ObjectPool<T> _pool;
