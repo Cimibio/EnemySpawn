@@ -5,15 +5,14 @@ public class EnemySpawner : Spawner<Enemy>
 {
     [SerializeField] private SpawnPointGenerator _pointGenerator;
 
-    protected override void ActionOnGet(Enemy enemy)
+    protected override void Spawn(Enemy enemy)
     {
         Vector3 spawnPoint = _pointGenerator.GetRandomPoint().position;
-        float randomYAngle = Random.Range(0f, 360f);
-        Quaternion direction = Quaternion.Euler(0, randomYAngle, 0);
 
-        base.ActionOnGet(enemy);
-        enemy.Init(spawnPoint, direction);
+        Vector3 moveDirection = new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)).normalized;
 
+        base.Spawn(enemy);
+        enemy.Init(spawnPoint, moveDirection);
         enemy.Falled += OnEnemyFall;
     }
 
