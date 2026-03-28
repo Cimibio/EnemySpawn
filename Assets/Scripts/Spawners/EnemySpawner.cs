@@ -8,7 +8,6 @@ public class EnemySpawner : Spawner<Enemy>
     protected override void Spawn(Enemy enemy)
     {
         Vector3 spawnPoint = _pointGenerator.GetRandomPoint().position;
-
         Vector3 moveDirection = new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)).normalized;
 
         base.Spawn(enemy);

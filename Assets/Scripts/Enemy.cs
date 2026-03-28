@@ -1,26 +1,36 @@
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(EnemyMover), typeof(EnemyFallDetector))]
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] private float _speed = 1f;
-    [SerializeField] private float _fallThreshold = -1f;
-
-    private Vector3 _moveDirection;
+    private EnemyMover _enemyMover;
+    private EnemyFallDetector _fallDetector;
 
     public event Action<Enemy> Falled;
 
-    private void Update()
+    private void Awake()
     {
-        transform.Translate(_moveDirection * _speed * Time.deltaTime, Space.World);
+        _enemyMover = GetComponent<EnemyMover>();
+        _fallDetector = GetComponent<EnemyFallDetector>();
 
-        if (transform.position.y < _fallThreshold)
-            Falled?.Invoke(this);
+        _fallDetector.OnFall += HandleFall;
+    }
+
+    private void OnDestroy()
+    {
+        if (_fallDetector != null)
+            _fallDetector.OnFall -= HandleFall;
     }
 
     public void Init(Vector3 position, Vector3 direction)
     {
         transform.position = position;
-        _moveDirection = direction.normalized;
+        _enemyMover.SetDirection(direction);
+    }
+
+    private void HandleFall()
+    {
+        Falled?.Invoke(this);
     }
 }
